@@ -6,8 +6,8 @@ public class Nim3 {
 	public static final int UNCLEAR = 2;
 
 	final static int NUM_ROWS = 3;
-	private final static int SZ_ROW0 = 0;
-	private final static int SZ_ROW1 = 2;
+	private final static int SZ_ROW0 = 7;
+	private final static int SZ_ROW1 = 5;
 	private final static int SZ_ROW2 = 1;
 
 	// These fields represent the actual position at any time.
@@ -47,7 +47,7 @@ public class Nim3 {
 	 * @param side of player making move
 	 * @param row 
 	 * @param number of stars taken.
-	 * @returns false if move is illegal.
+	 * @return false if move is illegal.
 	 */
 	public boolean makeMove(int side, int row, int number) {
 		if (side != nextPlayer) {
@@ -108,6 +108,11 @@ public class Nim3 {
 		return 0 <= row && row <= 2 && stars >= 1 && stars <= heap[row];
 	}
 
+	/**
+	 * @param side either 0 for HUMAN or 1 for COMPUTER
+	 * @param depth keeps track of recursion depth
+	 * @return the BestMove (container class) with either a 0 for a HUMAN win or a 3 for a COMPUTER win
+	 */
 	public BestMove chooseMove(int side, int depth) {
 		final int HUMAN_WIN = 0;
 		final int DRAW = 1;
@@ -121,11 +126,16 @@ public class Nim3 {
 		int value;
 
 		// if ran out of stars (all heaps empty) BASE CASE
-		if (isWin(COMPUTER)) {
-			return new BestMove(3);
+		int totalStars = 0;
+		for (int i : heap) {
+			totalStars += i;
 		}
-		else if (isWin(HUMAN)) {
-			return new BestMove(0);
+		if (totalStars == 0) {
+			if (nextPlayer == HUMAN) {
+				return new BestMove(HUMAN_WIN);
+			} else {
+				return new BestMove(COMPUTER_WIN);
+			}
 		}
 
 		// Initialize running values with out-of-range values (good software practice)
@@ -138,26 +148,28 @@ public class Nim3 {
 			value = COMPUTER_WIN + 1; // impossibly high value
 		}
 
-		for (int row : heap) {
-			for (int numStars = 0; numStars < row; numStars++) {
+		for (int row = 0; row < heap.length; row++) {
+			for (int numStars = 1; numStars <= heap[row]; numStars++) {
+				int origNextPlayer = nextPlayer;
+				// does trial move AND changes nextPlayer number
 				makeMove(side, row, numStars);
-				// change player number
+//				System.out.println("\u001B[36m after loop, returning value " + value + " at level " + depth + "\u001B[0m");
+
+				// recursive call
+				reply = chooseMove(opp, depth + 1);
+
+				// update min or max
+				if (side == COMPUTER && reply.val > value || side == HUMAN && reply.val < value) {
+					value = reply.val;
+					bestRow = row;
+					bestNum = numStars;
+				}
+
+				// undo Move, restore player number
+				nextPlayer = (nextPlayer == COMPUTER ? HUMAN : COMPUTER);
+				heap[row] = heap[row] + numStars;
 			}
 		}
-//		for (int row = 0; row < 3; row++)
-//			for (int num = 0; num < 3; num++)
-//				if (squareIsEmpty(row, num)) {
-//					place(row, num, side);
-//					reply = chooseMove(opp, depth+1);
-//					place(row, num, EMPTY);
-//					// Update if side gets better position
-//					if (side == COMPUTER && reply.val > value || side == HUMAN && reply.val < value) {
-//						value = reply.val;
-//						bestRow = row;
-//						bestColumn = num;
-//					}
-//				}
-		store.put(thisPosition, value);
 		return new BestMove(value, bestRow, bestNum);
 	}
 
