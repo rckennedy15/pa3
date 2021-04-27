@@ -2,16 +2,16 @@ package cs310.games;
 
 import java.util.Scanner;
 
-public class PlayTicTacToe1 {
-	public PlayTicTacToe1() {
-		g = new TicTacToe1();
+public class PlayTicTacToe3 {
+	public PlayTicTacToe3() {
+		g = new TicTacToe3();
 	}
 
 	public void doComputerMove() {
 		System.out.println(g.toString());
-		Best compMove = g.chooseMove(TicTacToe.COMPUTER, 0);  // depth 0 call
-		System.out.println("Computer plays ROW = " + compMove.row + " COL = " + compMove.column);
-		g.playMove(TicTacToe.COMPUTER, compMove.row, compMove.column);
+		BestMove compMove = g.chooseMove(TicTacToe3.COMPUTER, 0);  // depth 0 call
+		System.out.println("Computer plays ROW = " + compMove.i + " COL = " + compMove.j);
+		g.playMove(TicTacToe3.COMPUTER, compMove.i, compMove.j);
 	}
 
 	public void doHumanMove() {
@@ -22,7 +22,7 @@ public class PlayTicTacToe1 {
 			int row = scan.nextInt();
 			System.out.println("column: ");
 			int col = scan.nextInt();
-			legal = g.playMove(TicTacToe1.HUMAN, row, col);
+			legal = g.playMove(TicTacToe3.HUMAN, row, col);
 			if (!legal)
 				System.out.println("Illegal move, try again");
 		} while (!legal);
@@ -30,11 +30,11 @@ public class PlayTicTacToe1 {
 	
 	// return true if game is continuing, false if done
 	boolean checkAndReportStatus() {
-		if (g.isAWin(TicTacToe1.COMPUTER)) {
+		if (g.isAWin(TicTacToe3.COMPUTER)) {
 			System.out.println("Computer says: I WIN!!");
 			return false; // game is done
 		}
-		if (g.isAWin(TicTacToe1.HUMAN)) {
+		if (g.isAWin(TicTacToe3.HUMAN)) {
 			System.out.println("Computer says: You WIN!!");
 			return false; // game is done
 		}
@@ -71,11 +71,11 @@ public class PlayTicTacToe1 {
 	}
 
 	public static void main(String[] args) {
-		PlayTicTacToe1 ui = new PlayTicTacToe1();
+		PlayTicTacToe3 ui = new PlayTicTacToe3();
 		ui.playOneGame();
 	}
 
-	private TicTacToe1 g; // g for game
+	private TicTacToe3 g; // g for game
 	private Scanner scan = new Scanner(System.in);
 
 }

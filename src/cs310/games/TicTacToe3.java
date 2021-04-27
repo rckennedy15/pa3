@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-
-public class TicTacToe1 {
+public class TicTacToe3 {
 
 	private final class Position {
 		private int[][] board;
@@ -49,14 +48,14 @@ public class TicTacToe1 {
 	public static final int COMPUTER_WIN = 3;
 
 	// Constructor
-	public TicTacToe1() {
+	public TicTacToe3() {
 		clearBoard();
 	}
 
 	// Find optimal move
-	public Best chooseMove(int side, int depth) {
+	public BestMove chooseMove(int side, int depth) {
 		int opp; // The other side
-		Best reply; // Opponent's best reply
+		BestMove reply; // Opponent's best reply
 		int simpleEval; // Result of an immediate evaluation
 		int bestRow = -1; // Initialize running value with out-of-range value
 		int bestColumn = -1;
@@ -64,14 +63,14 @@ public class TicTacToe1 {
 		Position thisPosition = new Position(board);
 
 		if ((simpleEval = positionValue()) != UNCLEAR)
-			return new Best(simpleEval);
+			return new BestMove(simpleEval);
 		
 		// Don't look up top-level value: at top level, we need to explore moves
 		// out from here to find the best move to make)
 		if (depth > 0) {
 			Integer lookupVal = store.get(thisPosition);
 			if (lookupVal != null)
-				return new Best(lookupVal);
+				return new BestMove(lookupVal);
 		}
 		// Initialize running values with out-of-range values (good software practice)
 		// Here also to ensure that *some* move is chosen, even if a hopeless case
@@ -97,7 +96,7 @@ public class TicTacToe1 {
 					}
 				}
 		store.put(thisPosition, value);
-		return new Best(value, bestRow, bestColumn);
+		return new BestMove(value, bestRow, bestColumn);
 	}
 
 	// Play move, including checking legality
