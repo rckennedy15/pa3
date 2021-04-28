@@ -1,6 +1,9 @@
 package cs310.games;
 
-public class Nim3 {
+import java.util.HashMap;
+import java.util.Map;
+
+public class Nim4DP {
 	public static final int HUMAN = 0;
 	public static final int COMPUTER = 1;
 	public static final int UNCLEAR = 2;
@@ -14,10 +17,53 @@ public class Nim3 {
 	private int[] heap = new int[NUM_ROWS];
 	private int nextPlayer;
 
+	// Map of Position to it's calculated value (0 or 3)
+	private Map<Position, Integer> store = new HashMap<>();
+
+	/**
+	 * An internal container class to hold the game state
+	 */
+	private final class Position {
+		private int[] heap;
+		private int playerNum;
+
+		Position(int[] heap, int playerNum) {
+			this.heap = new int[NUM_ROWS];
+			System.arraycopy(heap, 0, this.heap, 0, heap.length);
+			this.playerNum = playerNum;
+		}
+
+		@Override
+		public boolean equals(Object that) {
+			if (!(that instanceof Position))
+				return false;
+
+			for (int i = 0; i < this.heap.length; i++) {
+				if (this.heap[i] != ((Position) that).heap[i])
+					return false;
+			}
+
+			if (this.playerNum != ((Position) that).playerNum)
+				return false;
+
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			int hashval = 0;
+
+			for (int i = 0; i < this.heap.length; i++) {
+				hashval += i * heap[i];
+			}
+			return hashval;
+		}
+	}
+
 	/**
 	 * Construct an instance of the cs310.games.Nim Game
 	 */
-	public Nim3() {
+	public Nim4DP() {
 	}
 
 	/**
@@ -124,6 +170,7 @@ public class Nim3 {
 		int bestRow = -1; // Initialize running value with out-of-range value
 		int bestNum = -1;
 		int value;
+		Position thisPosition = new Position(heap, side);
 
 		// if ran out of stars (all heaps empty) BASE CASE
 		int totalStars = 0;
@@ -136,6 +183,14 @@ public class Nim3 {
 			} else {
 				return new BestMove(COMPUTER_WIN);
 			}
+		}
+
+		// Don't look up top-level value: at top level, we need to explore moves
+		// out from here to find the best move to make)
+		if (depth > 0) {
+			Integer lookupVal = store.get(thisPosition);
+			if (lookupVal != null)
+				return new BestMove(lookupVal);
 		}
 
 		// Initialize running values with out-of-range values (good software practice)
@@ -170,6 +225,7 @@ public class Nim3 {
 				heap[row] = heap[row] + numStars;
 			}
 		}
+		store.put(thisPosition, value);
 		return new BestMove(value, bestRow, bestNum);
 	}
 
@@ -179,7 +235,7 @@ public class Nim3 {
 	// unit test (not part of API, just a test of it)
 	public static void main(String[] args) {
 
-		Nim3 g = new Nim3();
+		Nim4DP g = new Nim4DP();
 
 		g.init();
 		System.out.println("Start of game:");
@@ -188,26 +244,26 @@ public class Nim3 {
 		System.out.println("play with hard coded moves");
 		try {
 			System.out.println("doing move: A4");
-			g.makeMove(Nim3.COMPUTER, 0, 4);
+			g.makeMove(Nim4DP.COMPUTER, 0, 4);
 			System.out.println(g);
 			System.out.println("doing move: B2");
-			g.makeMove(Nim3.HUMAN, 1, 2);
+			g.makeMove(Nim4DP.HUMAN, 1, 2);
 			System.out.println(g);
 			System.out.println("doing move: C1");
-			g.makeMove(Nim3.COMPUTER, 2, 1);
+			g.makeMove(Nim4DP.COMPUTER, 2, 1);
 			System.out.println(g);
-			System.out.println("Human won? " + g.isWin(Nim3.HUMAN));
-			System.out.println("Computer won? " + g.isWin(Nim3.COMPUTER));
+			System.out.println("Human won? " + g.isWin(Nim4DP.HUMAN));
+			System.out.println("Computer won? " + g.isWin(Nim4DP.COMPUTER));
 			System.out.println("doing move: B1");
-			g.makeMove(Nim3.HUMAN, 1, 1);
+			g.makeMove(Nim4DP.HUMAN, 1, 1);
 			System.out.println(g);
-			System.out.println("Human won? " + g.isWin(Nim3.HUMAN));
-			System.out.println("Computer won? " + g.isWin(Nim3.COMPUTER));
+			System.out.println("Human won? " + g.isWin(Nim4DP.HUMAN));
+			System.out.println("Computer won? " + g.isWin(Nim4DP.COMPUTER));
 			System.out.println("doing move: A1");
-			g.makeMove(Nim3.COMPUTER, 0, 1);
+			g.makeMove(Nim4DP.COMPUTER, 0, 1);
 			System.out.println(g);
-			System.out.println("Human won? " + g.isWin(Nim3.HUMAN));
-			System.out.println("Computer won? " + g.isWin(Nim3.COMPUTER));
+			System.out.println("Human won? " + g.isWin(Nim4DP.HUMAN));
+			System.out.println("Computer won? " + g.isWin(Nim4DP.COMPUTER));
 		} catch (Exception e) {
 			System.out.println(e);
 		}
